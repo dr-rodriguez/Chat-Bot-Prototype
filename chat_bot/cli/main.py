@@ -47,11 +47,11 @@ def chat(provider: str, model: Optional[str]):
     
     # Initialize agent with selected provider
     agent = ChatAgent(provider=provider, model=model, settings=settings)
-    model_name = agent.model
+    model_name = agent.get_model_name()
     
     click.echo("Chat-Bot - Interactive Mode")
     # Output the specified provider and model
-    click.echo(f"Using <{provider}> with model <{model}>")
+    click.echo(f"Using <{provider}> with model <{model_name}>")
     click.echo("--------------------------------")
     click.echo("Type 'exit' or 'quit' to end the session\n")
     
@@ -62,7 +62,7 @@ def chat(provider: str, model: Optional[str]):
                 break
             
             response = agent.invoke(user_input)
-            click.echo(f"Bot [{model_name}]> {response}")
+            click.echo(f"Bot [{model_name}]: {response}")
         except (KeyboardInterrupt, click.Abort):
             click.echo("\nExiting...")
             break

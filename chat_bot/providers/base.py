@@ -65,6 +65,17 @@ class BaseProvider(ABC):
         """
         pass
     
+    def get_model_name(self) -> str:
+        """Get the actual model name being used.
+        
+        Returns
+        -------
+        str
+            The model name currently in use.
+        
+        """
+        return self.model or "unknown"
+    
     def validate_config(self) -> bool:
         """Validate provider configuration.
         

@@ -80,7 +80,6 @@ class OllamaProvider(BaseProvider):
         ------
         ValueError
             If no matching model is found.
-        
         """
         available_models = self._get_available_models()
         
@@ -148,6 +147,24 @@ class OllamaProvider(BaseProvider):
         """
         llm = self.get_llm()
         return llm.invoke(prompt)
+    
+    def get_model_name(self) -> str:
+        """Get the actual model name being used.
+        
+        Returns
+        -------
+        str
+            The matched model name if available, otherwise the requested model.
+        
+        """
+        # Ensure model is matched by calling get_llm() if needed
+        if self._matched_model is None and self.model:
+            try:
+                self._matched_model = self._match_model(self.model)
+            except (ValueError, Exception):
+                # If matching fails, return the requested model
+                return self.model
+        return self._matched_model or self.model or "unknown"
     
     def validate_config(self) -> bool:
         """Validate Ollama configuration.

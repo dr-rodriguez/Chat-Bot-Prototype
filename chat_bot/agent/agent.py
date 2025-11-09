@@ -159,6 +159,17 @@ Thought: {agent_scratchpad}"""
         if self.tools:
             self._initialize_agent()
     
+    def get_model_name(self) -> str:
+        """Get the actual model name being used by the provider.
+        
+        Returns
+        -------
+        str
+            The actual model name currently in use.
+        
+        """
+        return self.provider.get_model_name()
+    
     def clear_history(self):
         """Clear message history.
         
