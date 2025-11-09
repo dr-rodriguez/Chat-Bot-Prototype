@@ -52,6 +52,9 @@ OLLAMA_MODEL=llama3.2
 # Google Gemini Configuration (optional)
 GEMINI_API_KEY=your_api_key_here
 GEMINI_MODEL=gemini-2.5-pro
+
+# Memory Configuration (limit of messages to keep in memory)
+MODEL_MEMORY_LIMIT=20
 ```
 
 ### Provider Setup

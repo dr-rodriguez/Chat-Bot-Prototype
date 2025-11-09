@@ -21,6 +21,8 @@ class Settings:
         Google Gemini API key.
     gemini_model : str
         Default Gemini model name.
+    model_memory_limit : int
+        Maximum number of messages to keep in memory before trimming.
 
     """
 
@@ -42,6 +44,11 @@ class Settings:
         # Google Gemini configuration
         self.gemini_api_key: Optional[str] = os.getenv("GEMINI_API_KEY")
         self.gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+
+        # Memory configuration
+        self.model_memory_limit: int = int(
+            os.getenv("MODEL_MEMORY_LIMIT", "20")
+        )
 
     def validate(self) -> bool:
         """Validate that required settings are present.

@@ -15,22 +15,37 @@ from chat_bot.providers.gemini import GeminiProvider
 from chat_bot.providers.ollama import OllamaProvider
 
 
-@before_model
-def trim_messages(state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
-    """Keep only the last few messages to fit context window.
-    See https://docs.langchain.com/oss/python/langchain/short-term-memory
+def create_trim_messages_middleware(memory_limit: int):
+    """Create a trim_messages middleware function with configurable memory limit.
+    
+    Parameters
+    ----------
+    memory_limit : int
+        Maximum number of messages to keep before trimming.
+    
+    Returns
+    -------
+    function
+        Middleware function for trimming messages.
     """
-    messages = state["messages"]
+    @before_model
+    def trim_messages(state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
+        """Keep only the last few messages to fit context window.
+        See https://docs.langchain.com/oss/python/langchain/short-term-memory
+        """
+        messages = state["messages"]
 
-    # Keep only the last 10 messages
-    if len(messages) <= 10:
-        return None  # No changes needed
+        # Keep first message plus the last memory_limit messages
+        if len(messages) <= memory_limit:
+            return None  # No changes needed
 
-    first_msg = messages[0]
-    recent_messages = messages[-3:] if len(messages) % 2 == 0 else messages[-4:]
-    new_messages = [first_msg] + recent_messages
+        first_msg = messages[0]
+        recent_messages = messages[-memory_limit:]
+        new_messages = [first_msg] + recent_messages
 
-    return {"messages": [RemoveMessage(id=REMOVE_ALL_MESSAGES), *new_messages]}
+        return {"messages": [RemoveMessage(id=REMOVE_ALL_MESSAGES), *new_messages]}
+    
+    return trim_messages
 
 
 class ChatAgent:
@@ -111,6 +126,9 @@ class ChatAgent:
 
         # Simple prompt template
         prompt = "You are a helpful AI assistant. Keep responses concise and to the point. Use the available tools to answer questions when needed."
+
+        # Create trim_messages middleware with configured memory limit
+        trim_messages = create_trim_messages_middleware(self.settings.model_memory_limit)
 
         self.agent = create_agent(
             model=llm,
