@@ -1,14 +1,36 @@
 """Langchain agent core for Chat-Bot-Prototype."""
 
-from typing import Optional
+from typing import Any, Optional
 
-from langchain.agents import create_agent
+from langchain.agents import AgentState, create_agent
+from langchain.agents.middleware import before_model
+from langchain.messages import RemoveMessage
 from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.graph.message import REMOVE_ALL_MESSAGES
+from langgraph.runtime import Runtime
 
 from chat_bot.config.settings import Settings
 from chat_bot.providers.base import BaseProvider
 from chat_bot.providers.gemini import GeminiProvider
 from chat_bot.providers.ollama import OllamaProvider
+
+
+@before_model
+def trim_messages(state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
+    """Keep only the last few messages to fit context window.
+    See https://docs.langchain.com/oss/python/langchain/short-term-memory
+    """
+    messages = state["messages"]
+
+    # Keep only the last 10 messages
+    if len(messages) <= 10:
+        return None  # No changes needed
+
+    first_msg = messages[0]
+    recent_messages = messages[-3:] if len(messages) % 2 == 0 else messages[-4:]
+    new_messages = [first_msg] + recent_messages
+
+    return {"messages": [RemoveMessage(id=REMOVE_ALL_MESSAGES), *new_messages]}
 
 
 class ChatAgent:
@@ -88,12 +110,13 @@ class ChatAgent:
         llm = self.provider.get_llm()
 
         # Simple prompt template
-        prompt = "You are a helpful AI assistant. Use the available tools to answer questions when needed."
+        prompt = "You are a helpful AI assistant. Keep responses concise and to the point. Use the available tools to answer questions when needed."
 
         self.agent = create_agent(
             model=llm,
             tools=self.tools,
             system_prompt=prompt,
+            middleware=[trim_messages],
             checkpointer=InMemorySaver(),
         )
 
@@ -116,7 +139,7 @@ class ChatAgent:
             {"messages": [{"role": "user", "content": message}]},
             {"configurable": {"thread_id": "1"}},
         )
-        
+
         # Extract the last AI message content from the response
         # The response contains a "messages" list with all conversation messages
         response_text = response["messages"][-1].content
