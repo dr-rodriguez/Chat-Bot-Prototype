@@ -1,11 +1,11 @@
 <!--
 Sync Impact Report:
-Version change: N/A → 1.0.0 (initial constitution)
-Modified principles: N/A (new constitution)
-Added sections: Core Principles, Technology Stack, Development Approach, Governance
+Version change: 1.0.0 → 1.0.1 (added package management tool specification)
+Modified principles: N/A
+Added sections: N/A
 Removed sections: N/A
 Templates requiring updates:
-  ✅ .specify/templates/plan-template.md - Constitution Check section aligns with principles
+  ✅ .specify/templates/plan-template.md - No changes needed
   ✅ .specify/templates/spec-template.md - No changes needed (generic template)
   ✅ .specify/templates/tasks-template.md - No changes needed (generic template)
 Follow-up TODOs: None
@@ -32,6 +32,7 @@ The system MUST support Model Context Protocol (MCP) tool integration. Both loca
 
 ## Technology Stack
 
+**Package Management**: uv for dependency management and project setup  
 **Core Framework**: Langchain for agent orchestration  
 **CLI Framework**: Click for command-line interface  
 **LLM Providers**: Ollama (local), Google Gemini (external), extensible for additional providers  
@@ -55,4 +56,4 @@ Amendments to this constitution require:
 - Update of dependent templates and documentation
 - Review of impact on existing codebase
 
-**Version**: 1.0.0 | **Ratified**: 2025-01-27 | **Last Amended**: 2025-01-27
+**Version**: 1.0.1 | **Ratified**: 2025-01-27 | **Last Amended**: 2025-01-27
