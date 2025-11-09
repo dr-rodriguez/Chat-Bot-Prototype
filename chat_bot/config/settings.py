@@ -47,7 +47,7 @@ class Settings:
         self.gemini_api_key: Optional[str] = os.getenv("GEMINI_API_KEY")
         self.gemini_model: str = os.getenv(
             "GEMINI_MODEL",
-            "gemini-flash"
+            "gemini-2.5-flash"
         )
     
     def validate(self) -> bool:

@@ -24,7 +24,7 @@ class OllamaProvider(BaseProvider):
     
     """
     
-    def __init__(self, config: dict, model: Optional[str] = "llama3.2"):
+    def __init__(self, config: dict, model: Optional[str] = None):
         """Initialize Ollama provider.
         
         Parameters
@@ -32,7 +32,7 @@ class OllamaProvider(BaseProvider):
         config : dict
             Configuration dict with 'base_url' and 'model'.
         model : str, optional
-            Optional model name override. Default is "llama3.2".
+            Optional model name override.
         
         """
         super().__init__(config, model)

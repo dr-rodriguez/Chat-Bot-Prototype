@@ -31,7 +31,6 @@ def cli():
     "-m", "--model",
     type=str,
     help="Model name to use (provider-specific)",
-    default="llama3.2",
 )
 def chat(provider: str, model: Optional[str]):
     """Start an interactive chat session.
@@ -48,6 +47,7 @@ def chat(provider: str, model: Optional[str]):
     
     # Initialize agent with selected provider
     agent = ChatAgent(provider=provider, model=model, settings=settings)
+    model_name = agent.model
     
     click.echo("Chat-Bot - Interactive Mode")
     # Output the specified provider and model
@@ -62,7 +62,7 @@ def chat(provider: str, model: Optional[str]):
                 break
             
             response = agent.invoke(user_input)
-            click.echo(f"Bot: {response}")
+            click.echo(f"Bot [{model_name}]> {response}")
         except (KeyboardInterrupt, click.Abort):
             click.echo("\nExiting...")
             break
