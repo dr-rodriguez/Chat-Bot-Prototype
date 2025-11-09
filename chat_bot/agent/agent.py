@@ -79,10 +79,9 @@ class ChatAgent:
         else:
             raise ValueError(f"Unknown provider: {provider}")
 
-        # Initialize agent if tools are provided
+        # Initialize agent
         self.agent = None
-        if self.tools:
-            self._initialize_agent()
+        self._initialize_agent()
 
     def _initialize_agent(self):
         """Initialize Langchain agent with tools.
@@ -119,15 +118,12 @@ class ChatAgent:
         # Add to message history
         self.message_history.append(HumanMessage(content=message))
 
-        # Use agent executor if tools are available, otherwise use provider directly
-        if self.agent:
-            response = self.agent.invoke(
-                {"input": message}, {"configurable": {"thread_id": "1"}}
-            )
-            response_text = response.get("output", str(response))
-        else:
-            # Simple direct invocation without tools
-            response_text = self.provider.invoke(message)
+        # Always use the agent executor
+        response = self.agent.invoke(
+            {"messages": {"role": "user", "content": message}},
+            {"configurable": {"thread_id": "1"}},
+        )
+        response_text = response.get("output", str(response))
 
         # Add response to history
         self.message_history.append(AIMessage(content=response_text))
