@@ -1,0 +1,29 @@
+[project]
+name = "chat-bot"
+version = "0.1.0"
+description = "A simple AI chat bot using Langchain with multi-provider support"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "click>=8.3.0",
+    "langchain>=1.0.5",
+    "langchain-google-genai>=3.0.1",
+    "langchain-ollama>=1.0.0",
+    "python-dotenv>=1.2.1",
+]
+
+[project.scripts]
+chat-bot = "chat_bot.cli.main:cli"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["chat_bot*"]
