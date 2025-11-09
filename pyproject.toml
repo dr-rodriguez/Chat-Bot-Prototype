@@ -18,7 +18,8 @@ chat-bot = "chat_bot.cli.main:cli"
 [dependency-groups]
 dev = [
     "pytest>=9.0.0",
-    "ruff",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.14.4",
 ]
 
 [build-system]
@@ -28,3 +29,9 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["chat_bot*"]
+
+[tool.pytest.ini_options]
+addopts = "--cov=chat_bot"
+filterwarnings = [
+    "ignore::langgraph.warnings.LangGraphDeprecatedSinceV10",
+]
