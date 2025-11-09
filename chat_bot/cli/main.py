@@ -12,55 +12,57 @@ from chat_bot.config.settings import Settings
 @click.version_option(version="0.1.0")
 def cli():
     """Chat-Bot-Prototype - A simple AI chat bot using Langchain.
-    
+
     This CLI provides commands for interacting with the chat bot in both
     interactive and non-interactive modes.
-    
+
     """
     pass
 
 
 @cli.command()
 @click.option(
-    "-p", "--provider",
+    "-p",
+    "--provider",
     type=click.Choice(["ollama", "gemini"], case_sensitive=False),
     default="ollama",
     help="LLM provider to use (ollama or gemini)",
 )
 @click.option(
-    "-m", "--model",
+    "-m",
+    "--model",
     type=str,
     help="Model name to use (provider-specific)",
 )
 def chat(provider: str, model: Optional[str]):
     """Start an interactive chat session.
-    
+
     Parameters
     ----------
     provider : str
         LLM provider to use ("ollama" or "gemini").
     model : str, optional
         Model name to use (provider-specific).
-    
+
     """
     settings = Settings()
-    
+
     # Initialize agent with selected provider
     agent = ChatAgent(provider=provider, model=model, settings=settings)
     model_name = agent.get_model_name()
-    
+
     click.echo("Chat-Bot - Interactive Mode")
     # Output the specified provider and model
     click.echo(f"Using <{provider}> with model <{model_name}>")
     click.echo("--------------------------------")
     click.echo("Type 'exit' or 'quit' to end the session\n")
-    
+
     while True:
         try:
             user_input = click.prompt("You", type=str, default="")
             if user_input.lower() in ["exit", "quit"]:
                 break
-            
+
             response = agent.invoke(user_input)
             click.echo(f"Bot [{model_name}]: {response}")
         except (KeyboardInterrupt, click.Abort):
@@ -73,19 +75,21 @@ def chat(provider: str, model: Optional[str]):
 @cli.command()
 @click.argument("message", required=True)
 @click.option(
-    "-p", "--provider",
+    "-p",
+    "--provider",
     type=click.Choice(["ollama", "gemini"], case_sensitive=False),
     default="ollama",
     help="LLM provider to use (ollama or gemini)",
 )
 @click.option(
-    "-m", "--model",
+    "-m",
+    "--model",
     type=str,
     help="Model name to use (provider-specific)",
 )
 def run(message: str, provider: str, model: Optional[str]):
     """Run a single message through the chat bot (non-interactive).
-    
+
     Parameters
     ----------
     message : str
@@ -94,12 +98,12 @@ def run(message: str, provider: str, model: Optional[str]):
         LLM provider to use ("ollama" or "gemini").
     model : str, optional
         Model name to use (provider-specific).
-    
+
     """
     settings = Settings()
-    
+
     agent = ChatAgent(provider=provider, model=model, settings=settings)
-    
+
     try:
         response = agent.invoke(message)
         click.echo(response)
@@ -110,4 +114,3 @@ def run(message: str, provider: str, model: Optional[str]):
 
 if __name__ == "__main__":
     cli()
-
