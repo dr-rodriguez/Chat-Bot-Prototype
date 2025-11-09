@@ -5,14 +5,32 @@ from typing import Optional
 
 
 class BaseProvider(ABC):
-    """Abstract base class for LLM providers."""
+    """Abstract base class for LLM providers.
+    
+    This class defines the interface that all LLM provider implementations
+    must follow.
+    
+    Attributes
+    ----------
+    config : dict
+        Provider-specific configuration dictionary.
+    model : str, optional
+        Model name to use.
+    _llm : object, optional
+        Cached Langchain LLM instance.
+    
+    """
     
     def __init__(self, config: dict, model: Optional[str] = None):
         """Initialize provider with configuration.
         
-        Args:
-            config: Provider-specific configuration dictionary
-            model: Optional model name override
+        Parameters
+        ----------
+        config : dict
+            Provider-specific configuration dictionary.
+        model : str, optional
+            Optional model name override.
+        
         """
         self.config = config
         self.model = model or config.get("model")
@@ -22,8 +40,11 @@ class BaseProvider(ABC):
     def get_llm(self):
         """Get the Langchain LLM instance for this provider.
         
-        Returns:
-            Langchain LLM instance
+        Returns
+        -------
+        object
+            Langchain LLM instance.
+        
         """
         pass
     
@@ -31,19 +52,27 @@ class BaseProvider(ABC):
     def invoke(self, prompt: str) -> str:
         """Invoke the LLM with a prompt.
         
-        Args:
-            prompt: Input prompt text
-            
-        Returns:
-            LLM response text
+        Parameters
+        ----------
+        prompt : str
+            Input prompt text.
+        
+        Returns
+        -------
+        str
+            LLM response text.
+        
         """
         pass
     
     def validate_config(self) -> bool:
         """Validate provider configuration.
         
-        Returns:
-            True if configuration is valid
+        Returns
+        -------
+        bool
+            True if configuration is valid.
+        
         """
         return True
 

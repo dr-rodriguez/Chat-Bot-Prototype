@@ -6,10 +6,31 @@ from dotenv import load_dotenv
 
 
 class Settings:
-    """Application settings loaded from environment variables."""
+    """Application settings loaded from environment variables.
+    
+    This class manages configuration for different LLM providers by loading
+    settings from environment variables or a .env file.
+    
+    Attributes
+    ----------
+    ollama_base_url : str
+        Base URL for Ollama API.
+    ollama_model : str
+        Default Ollama model name.
+    gemini_api_key : str, optional
+        Google Gemini API key.
+    gemini_model : str
+        Default Gemini model name.
+    
+    """
     
     def __init__(self):
-        """Load environment variables from .env file if present."""
+        """Load environment variables from .env file if present.
+        
+        Initializes all provider-specific settings from environment variables
+        with default values where appropriate.
+        
+        """
         load_dotenv()
         
         # Ollama configuration
@@ -30,13 +51,37 @@ class Settings:
         )
     
     def validate(self) -> bool:
-        """Validate that required settings are present."""
+        """Validate that required settings are present.
+        
+        Returns
+        -------
+        bool
+            True if basic validation passes.
+        
+        """
         # Ollama doesn't require API keys, so it's always valid if base URL is set
         # Gemini requires API key
         return True  # Basic validation - can be extended
     
     def get_provider_config(self, provider: str) -> dict:
-        """Get configuration dictionary for a specific provider."""
+        """Get configuration dictionary for a specific provider.
+        
+        Parameters
+        ----------
+        provider : str
+            Provider name ("ollama" or "gemini").
+        
+        Returns
+        -------
+        dict
+            Configuration dictionary for the provider.
+        
+        Raises
+        ------
+        ValueError
+            If provider is unknown or required settings are missing.
+        
+        """
         if provider.lower() == "ollama":
             return {
                 "base_url": self.ollama_base_url,

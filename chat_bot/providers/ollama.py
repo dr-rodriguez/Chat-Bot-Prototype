@@ -10,14 +10,30 @@ from chat_bot.providers.base import BaseProvider
 
 
 class OllamaProvider(BaseProvider):
-    """Ollama LLM provider implementation."""
+    """Ollama LLM provider implementation.
+    
+    This provider connects to a local or remote Ollama instance to run
+    language models.
+    
+    Attributes
+    ----------
+    base_url : str
+        Base URL for the Ollama API.
+    _matched_model : str, optional
+        Matched model name from available models.
+    
+    """
     
     def __init__(self, config: dict, model: Optional[str] = "llama3.2"):
         """Initialize Ollama provider.
         
-        Args:
-            config: Configuration dict with 'base_url' and 'model'
-            model: Optional model name override
+        Parameters
+        ----------
+        config : dict
+            Configuration dict with 'base_url' and 'model'.
+        model : str, optional
+            Optional model name override. Default is "llama3.2".
+        
         """
         super().__init__(config, model)
         self.base_url = config.get("base_url", "http://localhost:11434")
@@ -26,8 +42,11 @@ class OllamaProvider(BaseProvider):
     def _get_available_models(self) -> list[str]:
         """Get list of available Ollama models.
         
-        Returns:
-            List of model names available in Ollama
+        Returns
+        -------
+        list[str]
+            List of model names available in Ollama.
+        
         """
         try:
             url = f"{self.base_url}/api/tags"
@@ -47,14 +66,21 @@ class OllamaProvider(BaseProvider):
         match exactly. If it doesn't include a tag (e.g., "llama3.2"), it will
         match any model with that base name (e.g., "llama3.2:3b", "llama3.2:1b").
         
-        Args:
-            requested_model: The model name requested by the user
-            
-        Returns:
-            Matched model name from available models
-            
-        Raises:
-            ValueError: If no matching model is found
+        Parameters
+        ----------
+        requested_model : str
+            The model name requested by the user.
+        
+        Returns
+        -------
+        str
+            Matched model name from available models.
+        
+        Raises
+        ------
+        ValueError
+            If no matching model is found.
+        
         """
         available_models = self._get_available_models()
         
@@ -87,7 +113,14 @@ class OllamaProvider(BaseProvider):
         return matching_models[0]
     
     def get_llm(self):
-        """Get Ollama LLM instance."""
+        """Get Ollama LLM instance.
+        
+        Returns
+        -------
+        object
+            Ollama LLM instance from langchain_ollama.
+        
+        """
         if self._llm is None:
             # Match the model to available models
             if self._matched_model is None:
@@ -102,17 +135,34 @@ class OllamaProvider(BaseProvider):
     def invoke(self, prompt: str) -> str:
         """Invoke Ollama LLM with a prompt.
         
-        Args:
-            prompt: Input prompt text
-            
-        Returns:
-            LLM response text
+        Parameters
+        ----------
+        prompt : str
+            Input prompt text.
+        
+        Returns
+        -------
+        str
+            LLM response text.
+        
         """
         llm = self.get_llm()
         return llm.invoke(prompt)
     
     def validate_config(self) -> bool:
-        """Validate Ollama configuration."""
+        """Validate Ollama configuration.
+        
+        Returns
+        -------
+        bool
+            True if configuration is valid.
+        
+        Raises
+        ------
+        ValueError
+            If model name or base URL is missing.
+        
+        """
         if not self.model:
             raise ValueError("Ollama model name is required")
         if not self.base_url:

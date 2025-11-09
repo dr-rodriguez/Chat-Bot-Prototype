@@ -11,7 +11,12 @@ from chat_bot.config.settings import Settings
 @click.group()
 @click.version_option(version="0.1.0")
 def cli():
-    """Chat-Bot-Prototype - A simple AI chat bot using Langchain."""
+    """Chat-Bot-Prototype - A simple AI chat bot using Langchain.
+    
+    This CLI provides commands for interacting with the chat bot in both
+    interactive and non-interactive modes.
+    
+    """
     pass
 
 
@@ -26,15 +31,28 @@ def cli():
     "-m", "--model",
     type=str,
     help="Model name to use (provider-specific)",
+    default="llama3.2",
 )
 def chat(provider: str, model: Optional[str]):
-    """Start an interactive chat session."""
+    """Start an interactive chat session.
+    
+    Parameters
+    ----------
+    provider : str
+        LLM provider to use ("ollama" or "gemini").
+    model : str, optional
+        Model name to use (provider-specific).
+    
+    """
     settings = Settings()
     
     # Initialize agent with selected provider
     agent = ChatAgent(provider=provider, model=model, settings=settings)
     
     click.echo("Chat-Bot - Interactive Mode")
+    # Output the specified provider and model
+    click.echo(f"Using <{provider}> with model <{model}>")
+    click.echo("--------------------------------")
     click.echo("Type 'exit' or 'quit' to end the session\n")
     
     while True:
@@ -45,7 +63,7 @@ def chat(provider: str, model: Optional[str]):
             
             response = agent.invoke(user_input)
             click.echo(f"Bot: {response}")
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, click.Abort):
             click.echo("\nExiting...")
             break
         except Exception as e:
@@ -66,7 +84,18 @@ def chat(provider: str, model: Optional[str]):
     help="Model name to use (provider-specific)",
 )
 def run(message: str, provider: str, model: Optional[str]):
-    """Run a single message through the chat bot (non-interactive)."""
+    """Run a single message through the chat bot (non-interactive).
+    
+    Parameters
+    ----------
+    message : str
+        Message to send to the chat bot.
+    provider : str
+        LLM provider to use ("ollama" or "gemini").
+    model : str, optional
+        Model name to use (provider-specific).
+    
+    """
     settings = Settings()
     
     agent = ChatAgent(provider=provider, model=model, settings=settings)

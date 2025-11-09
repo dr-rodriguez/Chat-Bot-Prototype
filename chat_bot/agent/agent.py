@@ -12,7 +12,29 @@ from chat_bot.providers.gemini import GeminiProvider
 
 
 class ChatAgent:
-    """Langchain-based chat agent with multi-provider support."""
+    """Langchain-based chat agent with multi-provider support.
+    
+    This agent provides a unified interface for interacting with different
+    LLM providers and can be extended with tools for more complex tasks.
+    
+    Attributes
+    ----------
+    settings : Settings
+        Application settings instance.
+    provider_name : str
+        Name of the LLM provider being used.
+    model : str, optional
+        Model name override.
+    tools : list
+        List of Langchain tools available to the agent.
+    message_history : list
+        History of messages in the conversation.
+    provider : BaseProvider
+        The LLM provider instance.
+    agent : object, optional
+        Langchain agent instance (if tools are provided).
+    
+    """
     
     def __init__(
         self,
@@ -23,11 +45,22 @@ class ChatAgent:
     ):
         """Initialize chat agent.
         
-        Args:
-            provider: LLM provider name ("ollama" or "gemini")
-            model: Optional model name override
-            settings: Settings instance (creates new if not provided)
-            tools: Optional list of Langchain tools for agent
+        Parameters
+        ----------
+        provider : str, optional
+            LLM provider name ("ollama" or "gemini"). Default is "ollama".
+        model : str, optional
+            Optional model name override.
+        settings : Settings, optional
+            Settings instance (creates new if not provided).
+        tools : list, optional
+            Optional list of Langchain tools for agent.
+        
+        Raises
+        ------
+        ValueError
+            If provider name is unknown.
+        
         """
         self.settings = settings or Settings()
         self.provider_name = provider.lower()
@@ -51,7 +84,11 @@ class ChatAgent:
             self._initialize_agent()
     
     def _initialize_agent(self):
-        """Initialize Langchain agent with tools."""
+        """Initialize Langchain agent with tools.
+        
+        Creates a ReAct-style agent with the configured tools and LLM.
+        
+        """
         llm = self.provider.get_llm()
         
         # Simple ReAct prompt template
@@ -82,11 +119,16 @@ Thought: {agent_scratchpad}"""
     def invoke(self, message: str) -> str:
         """Invoke the agent with a message.
         
-        Args:
-            message: User message text
-            
-        Returns:
-            Agent response text
+        Parameters
+        ----------
+        message : str
+            User message text.
+        
+        Returns
+        -------
+        str
+            Agent response text.
+        
         """
         # Add to message history
         self.message_history.append(HumanMessage(content=message))
@@ -107,14 +149,21 @@ Thought: {agent_scratchpad}"""
     def add_tool(self, tool):
         """Add a tool to the agent (requires reinitialization).
         
-        Args:
-            tool: Langchain tool instance
+        Parameters
+        ----------
+        tool : object
+            Langchain tool instance.
+        
         """
         self.tools.append(tool)
         if self.tools:
             self._initialize_agent()
     
     def clear_history(self):
-        """Clear message history."""
+        """Clear message history.
+        
+        Resets the conversation history to an empty list.
+        
+        """
         self.message_history = []
 
