@@ -37,8 +37,6 @@ class ChatAgent:
         
         # Initialize provider
         provider_config = self.settings.get_provider_config(self.provider_name)
-        if self.model:
-            provider_config["model"] = self.model
         
         if self.provider_name == "ollama":
             self.provider: BaseProvider = OllamaProvider(provider_config, self.model)

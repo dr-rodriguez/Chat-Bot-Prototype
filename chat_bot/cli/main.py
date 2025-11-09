@@ -17,68 +17,51 @@ def cli():
 
 @cli.command()
 @click.option(
-    "--provider",
+    "-p", "--provider",
     type=click.Choice(["ollama", "gemini"], case_sensitive=False),
     default="ollama",
     help="LLM provider to use (ollama or gemini)",
 )
 @click.option(
-    "--model",
+    "-m", "--model",
     type=str,
     help="Model name to use (provider-specific)",
 )
-@click.option(
-    "--interactive/--no-interactive",
-    default=True,
-    help="Run in interactive mode (default: True)",
-)
-def chat(provider: str, model: Optional[str], interactive: bool):
+def chat(provider: str, model: Optional[str]):
     """Start an interactive chat session."""
     settings = Settings()
     
     # Initialize agent with selected provider
     agent = ChatAgent(provider=provider, model=model, settings=settings)
     
-    if interactive:
-        click.echo("Chat-Bot-Prototype - Interactive Mode")
-        click.echo("Type 'exit' or 'quit' to end the session\n")
-        
-        while True:
-            try:
-                user_input = click.prompt("You", type=str, default="")
-                if user_input.lower() in ["exit", "quit"]:
-                    break
-                
-                response = agent.invoke(user_input)
-                click.echo(f"Bot: {response}")
-            except KeyboardInterrupt:
-                click.echo("\nExiting...")
+    click.echo("Chat-Bot - Interactive Mode")
+    click.echo("Type 'exit' or 'quit' to end the session\n")
+    
+    while True:
+        try:
+            user_input = click.prompt("You", type=str, default="")
+            if user_input.lower() in ["exit", "quit"]:
                 break
-            except Exception as e:
-                click.echo(f"Error: {e}", err=True)
-    else:
-        # Non-interactive mode: read from stdin
-        for line in sys.stdin:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                response = agent.invoke(line)
-                print(response)
-            except Exception as e:
-                print(f"Error: {e}", file=sys.stderr)
+            
+            response = agent.invoke(user_input)
+            click.echo(f"Bot: {response}")
+        except KeyboardInterrupt:
+            click.echo("\nExiting...")
+            break
+        except Exception as e:
+            click.echo(f"Error: {e}", err=True)
 
 
 @cli.command()
 @click.argument("message", required=True)
 @click.option(
-    "--provider",
+    "-p", "--provider",
     type=click.Choice(["ollama", "gemini"], case_sensitive=False),
     default="ollama",
     help="LLM provider to use (ollama or gemini)",
 )
 @click.option(
-    "--model",
+    "-m", "--model",
     type=str,
     help="Model name to use (provider-specific)",
 )
