@@ -7,10 +7,10 @@ from dotenv import load_dotenv
 
 class Settings:
     """Application settings loaded from environment variables.
-    
+
     This class manages configuration for different LLM providers by loading
     settings from environment variables or a .env file.
-    
+
     Attributes
     ----------
     ollama_base_url : str
@@ -21,66 +21,59 @@ class Settings:
         Google Gemini API key.
     gemini_model : str
         Default Gemini model name.
-    
+
     """
-    
+
     def __init__(self):
         """Load environment variables from .env file if present.
-        
+
         Initializes all provider-specific settings from environment variables
         with default values where appropriate.
-        
+
         """
         load_dotenv()
-        
+
         # Ollama configuration
         self.ollama_base_url: str = os.getenv(
-            "OLLAMA_BASE_URL", 
-            "http://localhost:11434"
+            "OLLAMA_BASE_URL", "http://localhost:11434"
         )
-        self.ollama_model: str = os.getenv(
-            "OLLAMA_MODEL",
-            "llama3.2"
-        )
-        
+        self.ollama_model: str = os.getenv("OLLAMA_MODEL", "llama3.2")
+
         # Google Gemini configuration
         self.gemini_api_key: Optional[str] = os.getenv("GEMINI_API_KEY")
-        self.gemini_model: str = os.getenv(
-            "GEMINI_MODEL",
-            "gemini-2.5-flash"
-        )
-    
+        self.gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+
     def validate(self) -> bool:
         """Validate that required settings are present.
-        
+
         Returns
         -------
         bool
             True if basic validation passes.
-        
+
         """
         # Ollama doesn't require API keys, so it's always valid if base URL is set
         # Gemini requires API key
         return True  # Basic validation - can be extended
-    
+
     def get_provider_config(self, provider: str) -> dict:
         """Get configuration dictionary for a specific provider.
-        
+
         Parameters
         ----------
         provider : str
             Provider name ("ollama" or "gemini").
-        
+
         Returns
         -------
         dict
             Configuration dictionary for the provider.
-        
+
         Raises
         ------
         ValueError
             If provider is unknown or required settings are missing.
-        
+
         """
         if provider.lower() == "ollama":
             return {
@@ -98,4 +91,3 @@ class Settings:
             }
         else:
             raise ValueError(f"Unknown provider: {provider}")
-
