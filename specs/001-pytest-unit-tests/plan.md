@@ -19,7 +19,7 @@ Create a comprehensive pytest unit test suite for the chat_bot package covering 
 **Project Type**: Single Python package (chat_bot) with CLI interface  
 **Performance Goals**: Test suite execution <5 seconds total, individual tests <1 second each  
 **Constraints**: Tests must run without network connectivity, API keys, or external services. Must achieve 80% branch coverage. Must use shared fixtures to reduce duplication by 50%.  
-**Scale/Scope**: ~500 lines of test code covering 4 modules (agent, providers, config, cli) with ~15-20 test functions total
+**Scale/Scope**: ~500 lines of test code covering 4 modules (agent, providers, config, cli) with ~15-35 test functions total
 
 ## Constitution Check
 

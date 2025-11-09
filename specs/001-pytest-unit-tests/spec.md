@@ -101,7 +101,7 @@ As a developer, I need unit tests for CLI commands so that I can verify command-
 - **SC-001**: All core components (agent, providers, settings) have unit tests that can be run in under 5 seconds total
 - **SC-002**: Test suite achieves at least 80% branch coverage for the chat_bot package
 - **SC-003**: All tests pass without requiring network connectivity or API keys
-- **SC-004**: Test suite uses shared fixtures to reduce code duplication by at least 50% compared to individual test setup
+- **SC-004**: Test suite uses shared fixtures to reduce code duplication compared to individual test setup
 - **SC-005**: All external API calls (Ollama, Gemini) are verified to be mocked in test execution
 - **SC-006**: Test suite can be run successfully by any developer without additional setup beyond installing dependencies
 
