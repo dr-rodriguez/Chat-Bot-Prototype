@@ -1,9 +1,8 @@
 """Langchain agent core for Chat-Bot-Prototype."""
 
-from typing import List, Optional
+from typing import Optional
 
 from langchain.agents import create_agent
-from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.checkpoint.memory import InMemorySaver
 
 from chat_bot.config.settings import Settings
@@ -28,8 +27,6 @@ class ChatAgent:
         Model name override.
     tools : list
         List of Langchain tools available to the agent.
-    message_history : list
-        History of messages in the conversation.
     provider : BaseProvider
         The LLM provider instance.
     agent : object, optional
@@ -42,7 +39,7 @@ class ChatAgent:
         provider: str = "ollama",
         model: Optional[str] = None,
         settings: Optional[Settings] = None,
-        tools: Optional[List] = None,
+        tools: Optional[list] = None,
     ):
         """Initialize chat agent.
 
@@ -67,7 +64,6 @@ class ChatAgent:
         self.provider_name = provider.lower()
         self.model = model
         self.tools = tools or []
-        self.message_history: List = []
 
         # Initialize provider
         provider_config = self.settings.get_provider_config(self.provider_name)
@@ -115,18 +111,15 @@ class ChatAgent:
             Agent response text.
 
         """
-        # Add to message history
-        self.message_history.append(HumanMessage(content=message))
-
-        # Always use the agent executor
+        # Invoke the agent - memory is managed by the checkpointer
         response = self.agent.invoke(
-            {"messages": {"role": "user", "content": message}},
+            {"messages": [{"role": "user", "content": message}]},
             {"configurable": {"thread_id": "1"}},
         )
-        response_text = response.get("output", str(response))
-
-        # Add response to history
-        self.message_history.append(AIMessage(content=response_text))
+        
+        # Extract the last AI message content from the response
+        # The response contains a "messages" list with all conversation messages
+        response_text = response["messages"][-1].content
 
         return response_text
 
@@ -157,7 +150,11 @@ class ChatAgent:
     def clear_history(self):
         """Clear message history.
 
-        Resets the conversation history to an empty list.
+        Note: This method currently does not clear the checkpointer's memory.
+        To start a fresh conversation, use a different thread_id when invoking
+        the agent, or create a new agent instance.
 
         """
-        self.message_history = []
+        # Memory is managed by the checkpointer, not a local list
+        # To clear history, use a different thread_id or create a new agent
+        pass
