@@ -9,7 +9,7 @@ from chat_bot.providers.base import BaseProvider
 class OllamaProvider(BaseProvider):
     """Ollama LLM provider implementation."""
     
-    def __init__(self, config: dict, model: Optional[str] = None):
+    def __init__(self, config: dict, model: Optional[str] = "llama3.2"):
         """Initialize Ollama provider.
         
         Args:

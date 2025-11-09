@@ -1,8 +1,8 @@
 """Langchain agent core for Chat-Bot-Prototype."""
 
 from typing import Optional, List
-from langchain.agents import AgentExecutor, create_react_agent
-from langchain.prompts import PromptTemplate
+from langchain.agents import create_agent
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import HumanMessage, AIMessage
 
 from chat_bot.config.settings import Settings
@@ -46,7 +46,7 @@ class ChatAgent:
             raise ValueError(f"Unknown provider: {provider}")
         
         # Initialize agent if tools are provided
-        self.agent_executor: Optional[AgentExecutor] = None
+        self.agent = None
         if self.tools:
             self._initialize_agent()
     
@@ -55,7 +55,7 @@ class ChatAgent:
         llm = self.provider.get_llm()
         
         # Simple ReAct prompt template
-        prompt = PromptTemplate.from_template(
+        prompt = ChatPromptTemplate.from_template(
             """You are a helpful AI assistant. Use the following tools to answer questions.
 
 Tools: {tools}
@@ -77,12 +77,7 @@ Question: {input}
 Thought: {agent_scratchpad}"""
         )
         
-        agent = create_react_agent(llm, self.tools, prompt)
-        self.agent_executor = AgentExecutor(
-            agent=agent,
-            tools=self.tools,
-            verbose=False,
-        )
+        self.agent = create_agent(model=llm, tools=self.tools, system_prompt=prompt)
     
     def invoke(self, message: str) -> str:
         """Invoke the agent with a message.
@@ -97,8 +92,8 @@ Thought: {agent_scratchpad}"""
         self.message_history.append(HumanMessage(content=message))
         
         # Use agent executor if tools are available, otherwise use provider directly
-        if self.agent_executor:
-            response = self.agent_executor.invoke({"input": message})
+        if self.agent:
+            response = self.agent.invoke({"input": message})
             response_text = response.get("output", str(response))
         else:
             # Simple direct invocation without tools
