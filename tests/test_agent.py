@@ -111,6 +111,9 @@ def test_agent_add_tool(mock_create_agent, mock_ollama_provider, mock_settings):
     mock_agent_instance = MagicMock()
     mock_create_agent.return_value = mock_agent_instance
     
+    # Ensure MCP tools are not loaded for this test
+    mock_settings.mcp_url = None
+    
     # Create agent
     agent = ChatAgent(provider="ollama", settings=mock_settings)
     
@@ -412,7 +415,7 @@ def test_agent_mcp_tool_precedence(mock_mcp_client, mock_create_agent, mock_olla
     Verifies that when an MCP tool has the same name as an existing tool,
     the MCP tool replaces the existing tool.
     """
-    from langchain.tools import Tool
+    from langchain_core.tools import Tool
     
     # Setup mocks
     mock_provider_instance = MagicMock()

@@ -54,7 +54,7 @@ class Settings:
 
         # MCP configuration
         mcp_url = os.getenv("MCP_URL")
-        if mcp_url:
+        if mcp_url is not None:
             mcp_url = mcp_url.strip()
             if not mcp_url:
                 mcp_url = None
