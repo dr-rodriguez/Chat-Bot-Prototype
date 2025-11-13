@@ -8,6 +8,7 @@ dependencies = [
     "click>=8.3.0",
     "langchain>=1.0.5",
     "langchain-google-genai>=3.0.1",
+    "langchain-mcp-adapters",
     "langchain-ollama>=1.0.0",
     "python-dotenv>=1.2.1",
 ]

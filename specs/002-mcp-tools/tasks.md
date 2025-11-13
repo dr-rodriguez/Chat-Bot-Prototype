@@ -64,8 +64,8 @@ Phase 6 (Polish)
 
 ### Tasks
 
-- [ ] T001 Add langchain-mcp-adapters dependency to pyproject.toml
-- [ ] T002 Update project documentation to mention MCP tool support in README.md
+- [x] T001 Add langchain-mcp-adapters dependency to pyproject.toml
+- [x] T002 Update project documentation to mention MCP tool support in README.md
 
 **Independent Test Criteria**: Project dependencies updated, documentation reflects MCP support.
 
@@ -79,8 +79,8 @@ Phase 6 (Polish)
 
 ### Tasks
 
-- [ ] T003 [P] Add mcp_url attribute to Settings class in chat_bot/config/settings.py
-- [ ] T004 [P] Add test for Settings.mcp_url in tests/test_config.py
+- [x] T003 [P] Add mcp_url attribute to Settings class in chat_bot/config/settings.py
+- [x] T004 [P] Add test for Settings.mcp_url in tests/test_config.py
 
 **Independent Test Criteria**: Settings class loads MCP_URL from environment variable, normalizes empty strings to None, and can be tested independently.
 
@@ -94,12 +94,12 @@ Phase 6 (Polish)
 
 ### Tasks
 
-- [ ] T005 [US1] Import required MCP dependencies in chat_bot/agent/agent.py
-- [ ] T006 [US1] Implement _load_mcp_tools() method in chat_bot/agent/agent.py
-- [ ] T007 [US1] Integrate MCP tool loading into ChatAgent.__init__() in chat_bot/agent/agent.py
-- [ ] T008 [US1] Implement tool merging logic with MCP tool precedence in chat_bot/agent/agent.py
-- [ ] T009 [US1] Add test for successful MCP tool loading in tests/test_agent.py
-- [ ] T010 [US1] Add test for backward compatibility (no MCP_URL) in tests/test_agent.py
+- [x] T005 [US1] Import required MCP dependencies in chat_bot/agent/agent.py
+- [x] T006 [US1] Implement _load_mcp_tools() method in chat_bot/agent/agent.py
+- [x] T007 [US1] Integrate MCP tool loading into ChatAgent.__init__() in chat_bot/agent/agent.py
+- [x] T008 [US1] Implement tool merging logic with MCP tool precedence in chat_bot/agent/agent.py
+- [x] T009 [US1] Add test for successful MCP tool loading in tests/test_agent.py
+- [x] T010 [US1] Add test for backward compatibility (no MCP_URL) in tests/test_agent.py
 
 **Acceptance Scenarios**:
 1. Given MCP_URL is set in configuration, When I create a ChatAgent instance, Then the agent has access to tools provided by the MCP server
@@ -116,10 +116,10 @@ Phase 6 (Polish)
 
 ### Tasks
 
-- [ ] T011 [US2] Add error handling for connection failures in _load_mcp_tools() in chat_bot/agent/agent.py
-- [ ] T012 [US2] Add timeout handling (5 seconds) in _load_mcp_tools() in chat_bot/agent/agent.py
-- [ ] T013 [US2] Add ERROR level logging for connection failures in chat_bot/agent/agent.py
-- [ ] T014 [US2] Add tests for connection failure scenarios in tests/test_agent.py
+- [x] T011 [US2] Add error handling for connection failures in _load_mcp_tools() in chat_bot/agent/agent.py
+- [x] T012 [US2] Add timeout handling (5 seconds) in _load_mcp_tools() in chat_bot/agent/agent.py
+- [x] T013 [US2] Add ERROR level logging for connection failures in chat_bot/agent/agent.py
+- [x] T014 [US2] Add tests for connection failure scenarios in tests/test_agent.py
 
 **Acceptance Scenarios**:
 1. Given MCP_URL points to an unreachable server, When I create a ChatAgent instance, Then the agent initializes without MCP tools and logs an ERROR level message
@@ -136,8 +136,8 @@ Phase 6 (Polish)
 
 ### Tasks
 
-- [ ] T015 [US3] Verify multiple tools are loaded from MCP server in chat_bot/agent/agent.py
-- [ ] T016 [US3] Add test for multiple MCP tools in tests/test_agent.py
+- [x] T015 [US3] Verify multiple tools are loaded from MCP server in chat_bot/agent/agent.py
+- [x] T016 [US3] Add test for multiple MCP tools in tests/test_agent.py
 
 **Acceptance Scenarios**:
 1. Given MCP server provides multiple tools, When I create a ChatAgent instance, Then all tools from the MCP server are available to the agent
@@ -151,8 +151,8 @@ Phase 6 (Polish)
 
 ### Tasks
 
-- [ ] T017 Handle empty MCP_URL string normalization in chat_bot/config/settings.py
-- [ ] T018 Add WARNING logging for empty tools from MCP server in chat_bot/agent/agent.py
+- [x] T017 Handle empty MCP_URL string normalization in chat_bot/config/settings.py
+- [x] T018 Add WARNING logging for empty tools from MCP server in chat_bot/agent/agent.py
 
 **Edge Cases Covered**:
 - Empty MCP_URL string treated as unset

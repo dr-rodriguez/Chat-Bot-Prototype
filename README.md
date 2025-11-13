@@ -10,6 +10,7 @@ Chat-Bot-Prototype is an intermediate-level project designed for data scientists
 
 - **Multi-Provider Support**: Switch between Ollama (local) and Google Gemini (external) providers
 - **Langchain Agent Architecture**: Built on Langchain for modular, provider-agnostic agent logic
+- **MCP Tool Integration**: Automatically load and use tools from MCP (Model Context Protocol) servers
 - **CLI Interface**: Command-line interface using Click with both interactive and non-interactive modes
 - **Simple Configuration**: Environment-based configuration with sensible defaults
 - **Extensible Design**: Easy to add new providers or tools
@@ -55,6 +56,9 @@ GEMINI_MODEL=gemini-2.5-pro
 
 # Memory Configuration (limit of messages to keep in memory)
 MODEL_MEMORY_LIMIT=20
+
+# MCP Tool Integration (optional)
+MCP_URL=http://localhost:8000/mcp
 ```
 
 ### Provider Setup
@@ -127,12 +131,27 @@ tests/
 .env.example                     # Environment configuration template
 ```
 
+## MCP Tool Integration
+
+The agent can automatically load and use tools from MCP (Model Context Protocol) servers. To enable MCP tools:
+
+1. Set the `MCP_URL` environment variable to your MCP server endpoint:
+   ```bash
+   export MCP_URL="http://localhost:8000/mcp"
+   ```
+
+2. The agent will automatically connect to the MCP server during initialization and make all available tools accessible.
+
+3. MCP tools take precedence over existing tools with the same name.
+
+The agent handles connection failures gracefully - if the MCP server is unavailable, the agent will continue to work normally without MCP tools.
+
 ## Architecture
 
 The project follows a modular architecture:
 
 - **CLI Layer**: Click-based command-line interface
-- **Agent Layer**: Langchain agent orchestration with tool support
+- **Agent Layer**: Langchain agent orchestration with tool support and MCP integration
 - **Provider Layer**: Abstracted LLM provider implementations
 - **Config Layer**: Environment-based configuration management
 

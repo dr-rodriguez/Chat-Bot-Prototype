@@ -23,6 +23,8 @@ class Settings:
         Default Gemini model name.
     model_memory_limit : int
         Maximum number of messages to keep in memory before trimming.
+    mcp_url : str, optional
+        URL of the MCP server endpoint for tool integration.
 
     """
 
@@ -49,6 +51,14 @@ class Settings:
         self.model_memory_limit: int = int(
             os.getenv("MODEL_MEMORY_LIMIT", "20")
         )
+
+        # MCP configuration
+        mcp_url = os.getenv("MCP_URL")
+        if mcp_url:
+            mcp_url = mcp_url.strip()
+            if not mcp_url:
+                mcp_url = None
+        self.mcp_url: Optional[str] = mcp_url
 
     def validate(self) -> bool:
         """Validate that required settings are present.

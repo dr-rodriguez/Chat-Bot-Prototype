@@ -1,10 +1,13 @@
 """Langchain agent core for Chat-Bot-Prototype."""
 
+import asyncio
+import logging
 from typing import Any, Optional
 
 from langchain.agents import AgentState, create_agent
 from langchain.agents.middleware import before_model
 from langchain.messages import RemoveMessage
+from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph.message import REMOVE_ALL_MESSAGES
 from langgraph.runtime import Runtime
@@ -13,6 +16,8 @@ from chat_bot.config.settings import Settings
 from chat_bot.providers.base import BaseProvider
 from chat_bot.providers.gemini import GeminiProvider
 from chat_bot.providers.ollama import OllamaProvider
+
+logger = logging.getLogger(__name__)
 
 
 def create_trim_messages_middleware(memory_limit: int):
@@ -112,6 +117,12 @@ class ChatAgent:
         else:
             raise ValueError(f"Unknown provider: {provider}")
 
+        # Load MCP tools if configured
+        if self.settings.mcp_url:
+            mcp_tools = self._load_mcp_tools()
+            if mcp_tools:
+                self._merge_mcp_tools(mcp_tools)
+
         # Initialize agent
         self.agent = None
         self._initialize_agent()
@@ -199,3 +210,81 @@ class ChatAgent:
         # Memory is managed by the checkpointer, not a local list
         # To clear history, use a different thread_id or create a new agent
         pass
+
+    def _load_mcp_tools(self) -> list:
+        """Load tools from MCP server and convert to LangChain tool format.
+
+        Returns
+        -------
+        list
+            List of LangChain tool objects from MCP server, or empty list on error.
+
+        """
+        if not self.settings.mcp_url:
+            return []
+
+        try:
+            # Create MCP client with streamable HTTP transport
+            client = MultiServerMCPClient({
+                "mcp_server": {
+                    "transport": "streamable_http",
+                    "url": self.settings.mcp_url
+                }
+            })
+
+            # Fetch tools (async method called from sync context)
+            # Use asyncio.run() with timeout
+            mcp_tools = asyncio.run(
+                asyncio.wait_for(client.get_tools(), timeout=5.0)
+            )
+
+            if not mcp_tools:
+                logger.warning("MCP server provided no tools")
+                return []
+
+            return mcp_tools
+
+        except asyncio.TimeoutError:
+            logger.error("Failed to load MCP tools: timeout after 5 seconds")
+            return []
+        except ConnectionError as e:
+            logger.error(f"Failed to load MCP tools: connection error - {e}")
+            return []
+        except ValueError as e:
+            logger.error(f"Failed to load MCP tools: invalid URL - {e}")
+            return []
+        except Exception as e:
+            logger.error(f"Failed to load MCP tools: {e}")
+            return []
+
+    def _merge_mcp_tools(self, mcp_tools: list):
+        """Merge MCP tools with existing tools, with MCP tools taking precedence.
+
+        Parameters
+        ----------
+        mcp_tools : list
+            List of MCP tools to merge.
+
+        """
+        # Create a dictionary of existing tools by name for conflict detection
+        existing_tool_names = {tool.name for tool in self.tools if hasattr(tool, 'name')}
+
+        # Check for conflicts and log warnings
+        for tool in mcp_tools:
+            if hasattr(tool, 'name') and tool.name in existing_tool_names:
+                logger.warning(
+                    f"MCP tool '{tool.name}' conflicts with existing tool, MCP tool will be used"
+                )
+
+        # Remove conflicting existing tools
+        self.tools = [
+            tool for tool in self.tools
+            if not (hasattr(tool, 'name') and any(
+                mcp_tool.name == tool.name
+                for mcp_tool in mcp_tools
+                if hasattr(mcp_tool, 'name')
+            ))
+        ]
+
+        # Add all MCP tools (they take precedence)
+        self.tools.extend(mcp_tools)
