@@ -137,7 +137,11 @@ class ChatAgent:
         llm = self.provider.get_llm()
 
         # Simple prompt template
-        prompt = "You are a helpful AI assistant. Keep responses concise and to the point. Use the available tools to answer questions when needed."
+        prompt = "You are a helpful AI assistant. Keep responses concise and to the point."
+        
+        # Add MCP tools information if available
+        if self.settings.mcp_url:
+            prompt += " MCP (Model Context Protocol) tools are available and can be used when needed. Indicate whenever you have used a tool."
 
         # Create trim_messages middleware with configured memory limit
         trim_messages = create_trim_messages_middleware(self.settings.model_memory_limit)
@@ -162,7 +166,7 @@ class ChatAgent:
         if self._loop is None or self._loop.is_closed():
             try:
                 # Try to get the current event loop (if we're in an async context)
-                loop = asyncio.get_running_loop()
+                _ = asyncio.get_running_loop()
                 # If we're here, we're in an async context, so we can't use run_until_complete
                 # This shouldn't happen in our sync invoke() method, but handle it gracefully
                 return None

@@ -49,7 +49,7 @@ class Settings:
 
         # Memory configuration
         self.model_memory_limit: int = int(
-            os.getenv("MODEL_MEMORY_LIMIT", "20")
+            os.getenv("MODEL_MEMORY_LIMIT", "10")
         )
 
         # MCP configuration

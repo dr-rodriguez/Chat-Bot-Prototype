@@ -73,7 +73,7 @@ class GeminiProvider(BaseProvider):
         response = llm.invoke(prompt)
         # ChatGoogleGenerativeAI returns a message object, extract content
         if hasattr(response, "content"):
-            return response.content
+            return response.content["text"]
         return str(response)
 
     def validate_config(self) -> bool:
