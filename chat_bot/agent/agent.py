@@ -106,6 +106,7 @@ class ChatAgent:
         self.provider_name = provider.lower()
         self.model = model
         self.tools = tools or []
+        self._loop = None  # Event loop for async operations
 
         # Initialize provider
         provider_config = self.settings.get_provider_config(self.provider_name)
@@ -149,6 +150,34 @@ class ChatAgent:
             checkpointer=InMemorySaver(),
         )
 
+    def _get_or_create_loop(self):
+        """Get existing event loop or create a new one.
+        
+        Returns
+        -------
+        asyncio.AbstractEventLoop
+            An active event loop.
+        
+        """
+        if self._loop is None or self._loop.is_closed():
+            try:
+                # Try to get the current event loop (if we're in an async context)
+                loop = asyncio.get_running_loop()
+                # If we're here, we're in an async context, so we can't use run_until_complete
+                # This shouldn't happen in our sync invoke() method, but handle it gracefully
+                return None
+            except RuntimeError:
+                # No running loop, check if there's a loop set but not running
+                try:
+                    self._loop = asyncio.get_event_loop()
+                    if self._loop.is_closed():
+                        raise RuntimeError("Event loop is closed")
+                except RuntimeError:
+                    # No event loop exists or it's closed, create a new one
+                    self._loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(self._loop)
+        return self._loop
+
     def invoke(self, message: str) -> str:
         """Invoke the agent with a message.
 
@@ -165,12 +194,27 @@ class ChatAgent:
         """
         # Invoke the agent asynchronously to support async MCP tools
         # Memory is managed by the checkpointer
-        response = asyncio.run(
-            self.agent.ainvoke(
-                {"messages": [{"role": "user", "content": message}]},
-                {"configurable": {"thread_id": "1"}},
+        # Reuse event loop to avoid "Event loop is closed" errors
+        loop = self._get_or_create_loop()
+        
+        # Run the coroutine in the existing loop
+        if loop is None or loop.is_running():
+            # If we're in an async context or loop is running, use asyncio.run() as fallback
+            # This creates a new loop, but it's necessary in this case
+            response = asyncio.run(
+                self.agent.ainvoke(
+                    {"messages": [{"role": "user", "content": message}]},
+                    {"configurable": {"thread_id": "1"}},
+                )
             )
-        )
+        else:
+            # Use the existing loop (reuse it to avoid closing/reopening)
+            response = loop.run_until_complete(
+                self.agent.ainvoke(
+                    {"messages": [{"role": "user", "content": message}]},
+                    {"configurable": {"thread_id": "1"}},
+                )
+            )
 
         # Extract the last AI message content from the response
         # The response contains a "messages" list with all conversation messages
@@ -214,6 +258,18 @@ class ChatAgent:
         # To clear history, use a different thread_id or create a new agent
         pass
 
+    def close(self):
+        """Close the event loop and clean up resources.
+        
+        Call this method when you're done with the agent to properly
+        clean up the event loop. This is optional but recommended for
+        long-running applications.
+        
+        """
+        if self._loop is not None and not self._loop.is_closed():
+            self._loop.close()
+            self._loop = None
+
     def _load_mcp_tools(self) -> list:
         """Load tools from MCP server and convert to LangChain tool format.
 
@@ -236,10 +292,18 @@ class ChatAgent:
             })
 
             # Fetch tools (async method called from sync context)
-            # Use asyncio.run() with timeout
-            mcp_tools = asyncio.run(
-                asyncio.wait_for(client.get_tools(), timeout=5.0)
-            )
+            # Reuse event loop to avoid "Event loop is closed" errors
+            loop = self._get_or_create_loop()
+            if loop is None or loop.is_running():
+                # If we're in an async context or loop is running, use asyncio.run() as fallback
+                mcp_tools = asyncio.run(
+                    asyncio.wait_for(client.get_tools(), timeout=5.0)
+                )
+            else:
+                # Use the existing loop (reuse it to avoid closing/reopening)
+                mcp_tools = loop.run_until_complete(
+                    asyncio.wait_for(client.get_tools(), timeout=5.0)
+                )
 
             if not mcp_tools:
                 logger.warning("MCP server provided no tools")
