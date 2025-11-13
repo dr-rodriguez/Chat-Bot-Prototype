@@ -4,7 +4,7 @@ from typing import Optional
 import json
 from urllib.request import urlopen, Request
 from urllib.error import URLError, HTTPError
-from langchain_ollama import OllamaLLM
+from langchain_ollama import ChatOllama
 
 from chat_bot.providers.base import BaseProvider
 
@@ -125,7 +125,7 @@ class OllamaProvider(BaseProvider):
             if self._matched_model is None:
                 self._matched_model = self._match_model(self.model)
 
-            self._llm = OllamaLLM(
+            self._llm = ChatOllama(
                 model=self._matched_model,
                 base_url=self.base_url,
             )

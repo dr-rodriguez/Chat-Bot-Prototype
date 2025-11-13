@@ -129,3 +129,78 @@ def test_settings_validate():
     
     assert settings.validate() is True
 
+
+@patch("chat_bot.config.settings.load_dotenv")
+@patch("chat_bot.config.settings.os.getenv")
+def test_settings_mcp_url_set(mock_getenv, mock_load_dotenv):
+    """Test that Settings loads MCP_URL from environment variable.
+    
+    Verifies that Settings correctly loads MCP_URL when the environment
+    variable is set.
+    """
+    def getenv_side_effect(key, default=None):
+        if key == "MCP_URL":
+            return "http://localhost:8000/mcp"
+        return default
+    
+    mock_getenv.side_effect = getenv_side_effect
+    
+    settings = Settings()
+    
+    assert settings.mcp_url == "http://localhost:8000/mcp"
+
+
+@patch("chat_bot.config.settings.load_dotenv")
+@patch("chat_bot.config.settings.os.getenv")
+def test_settings_mcp_url_not_set(mock_getenv, mock_load_dotenv):
+    """Test that Settings.mcp_url is None when MCP_URL is not set.
+    
+    Verifies that Settings.mcp_url is None when the MCP_URL environment
+    variable is not set.
+    """
+    def getenv_side_effect(key, default=None):
+        return default
+    
+    mock_getenv.side_effect = getenv_side_effect
+    
+    settings = Settings()
+    
+    assert settings.mcp_url is None
+
+
+@patch("chat_bot.config.settings.load_dotenv")
+@patch("chat_bot.config.settings.os.getenv")
+def test_settings_mcp_url_empty_string(mock_getenv, mock_load_dotenv):
+    """Test that Settings normalizes empty MCP_URL string to None.
+    
+    Verifies that Settings normalizes empty strings to None for MCP_URL.
+    """
+    def getenv_side_effect(key, default=None):
+        if key == "MCP_URL":
+            return ""
+        return default
+    
+    mock_getenv.side_effect = getenv_side_effect
+    
+    settings = Settings()
+    
+    assert settings.mcp_url is None
+
+
+@patch("chat_bot.config.settings.load_dotenv")
+@patch("chat_bot.config.settings.os.getenv")
+def test_settings_mcp_url_whitespace_only(mock_getenv, mock_load_dotenv):
+    """Test that Settings normalizes whitespace-only MCP_URL to None.
+    
+    Verifies that Settings normalizes whitespace-only strings to None for MCP_URL.
+    """
+    def getenv_side_effect(key, default=None):
+        if key == "MCP_URL":
+            return "   "
+        return default
+    
+    mock_getenv.side_effect = getenv_side_effect
+    
+    settings = Settings()
+    
+    assert settings.mcp_url is None

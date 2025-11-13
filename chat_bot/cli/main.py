@@ -50,10 +50,12 @@ def chat(provider: str, model: Optional[str]):
     # Initialize agent with selected provider
     agent = ChatAgent(provider=provider, model=model, settings=settings)
     model_name = agent.get_model_name()
+    tool_names = [tool.name for tool in agent.tools]
 
     click.echo("Chat-Bot - Interactive Mode")
     # Output the specified provider and model
     click.echo(f"Using <{provider}> with model <{model_name}>")
+    click.echo(f"MCP tools: {tool_names}")
     click.echo("--------------------------------")
     click.echo("Type 'exit' or 'quit' to end the session\n")
 
