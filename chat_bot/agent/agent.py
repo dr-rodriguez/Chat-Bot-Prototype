@@ -163,10 +163,13 @@ class ChatAgent:
             Agent response text.
 
         """
-        # Invoke the agent - memory is managed by the checkpointer
-        response = self.agent.invoke(
-            {"messages": [{"role": "user", "content": message}]},
-            {"configurable": {"thread_id": "1"}},
+        # Invoke the agent asynchronously to support async MCP tools
+        # Memory is managed by the checkpointer
+        response = asyncio.run(
+            self.agent.ainvoke(
+                {"messages": [{"role": "user", "content": message}]},
+                {"configurable": {"thread_id": "1"}},
+            )
         )
 
         # Extract the last AI message content from the response
